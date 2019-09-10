@@ -1,6 +1,6 @@
-# Astro Pi Stretch Installer
+# Astro Pi Buster Installer
 
-Installer for Astro Pi Stretch SD card image used in the 2018-2019 competition.
+Installer for Astro Pi Buster SD card images used in the 2018-2019 competition.
 
 ## About
 
@@ -16,10 +16,10 @@ See [astro-pi.org](https://astro-pi.org/) and the
 Make sure you're connected to the internet, open a terminal window and type:
 
 ```bash
-curl -sSL rpf.io/apstretch | bash
+curl -sSL rpf.io/apbuster | bash
 ```
 
-Please note that the installer only supports **Raspbian Stretch**. You can
+Please note that the installer only supports **Raspbian Buster**. You can
 download this from the [downloads page](https://www.raspberrypi.org/downloads/raspbian/)
 on the Raspberry Pi website.
 
@@ -51,19 +51,24 @@ To choose a background, right click on the desktop and choose **Desktop
 Preferences**. Under **Picture** click the selected file and try changing it
 to one of the other options.
 
-## Pi 1 / Pi 3
+## Pi 1 / Pi 3 or 4
 
-Note that you can transfer your SD card between Pi 1 and Pi 3 and it will still
-work. Python libraries opencv and Tensorflow usually have optimisations for the
-Pi 3 but this installer will install the Pi 1 version which works on both models.
+Note that you can transfer your SD card between Pi 1 and Pi 3/4 and it will
+still work. Python libraries opencv and Tensorflow usually have optimisations
+for the Pi 3/4 but this installer will install the Pi 1 version which works on
+both models.
 
 Performance throttling is introduced when you run the installer on a Lite image.
 
 ## Download the image
 
-- [Astro Pi Desktop image](https://downloads.raspberrypi.org/AstroPi/images/AstroPi-2018-12-03/astropi_stretch_desktop.zip)
-- [Astro Pi Lite image](https://downloads.raspberrypi.org/AstroPi_lite/images/AstroPi_lite-2018-12-03/astropi_stretch_lite.zip)
+- Astro Pi Desktop image
+- Astro Pi Lite image
 
 ## Testing & feedback
 
-Please test this installer and provide feedback. If you have any issues using the installer, it doesn't work for you, something goes wrong or you have any other issues, please let us know. You can [create a GitHub issue](https://github.com/astro-pi/astro-pi-stretch-installer/issues) or send an email to `ben@raspberrypi.org`.
+Please test this installer and provide feedback. If you have any issues using
+the installer, it doesn't work for you, something goes wrong or you have any
+other issues, please let us know. You can [create a GitHub
+issue](https://github.com/astro-pi/astro-pi-buster-installer/issues) or send an
+email to `ben@raspberrypi.org`.

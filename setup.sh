@@ -6,12 +6,12 @@ source /etc/os-release
 
 t=`date '+%H:%M:%S'`
 
-# Check we're on Raspbian Stretch (Debian 9)
+# Check we're on Raspbian Buster (Debian 10)
 
-if [ $VERSION_ID -eq 9 ]; then
-    echo "$t You are running Raspbian Stretch. Starting Astro Pi setup..."
+if [ $VERSION_ID -eq 10 ]; then
+    echo "$t You are running Raspbian Buster. Starting Astro Pi setup..."
 else
-    echo "You seem to be using {$PRETTY_NAME}. This installer is for Raspbian Stretch. Please download Raspbian Stretch from the Raspberry Pi website http://rpf.io/raspbian"
+    echo "You seem to be using {$PRETTY_NAME}. This installer is for Raspbian Buster. Please download Raspbian Buster from the Raspberry Pi website http://rpf.io/raspbian"
     exit 1
 fi
 
@@ -45,9 +45,9 @@ fi
 
 t=`date '+%H:%M:%S'`
 echo "$t Cloning installation repository"
-rm -rf astro-pi-stretch-installer || true # delete if it's already there
-git clone -q https://github.com/astro-pi/astro-pi-stretch-installer
-cd astro-pi-stretch-installer
+rm -rf astro-pi-buster-installer || true # delete if it's already there
+git clone -q https://github.com/astro-pi/astro-pi-buster-installer
+cd astro-pi-buster-installer
 
 # Check we're on desktop or lite
 
@@ -110,10 +110,14 @@ done
 
 # Install Armv6 versions of opencv/tensorflow/grpcio from wheel files
 
+mkdir wheels
 cd wheels
-for f in *armv6l.whl; # rename armv6 wheels to armv7
-    do cp $f ${f%armv6l.whl}armv7l.whl;
-done
+wget https://www.piwheels.org/simple/opencv-contrib-python-headless/opencv_contrib_python_headless-3.4.3.18-cp37-cp37m-linux_armv6l.whl
+cp opencv_contrib_python_headless-3.4.3.18-cp37-cp37m-linux_armv6l.whl opencv_contrib_python_headless-3.4.3.18-cp37-cp37m-linux_armv7l.whl
+wget https://www.piwheels.org/simple/grpcio/grpcio-1.23.0-cp37-cp37m-linux_armv6l.whl
+cp grpcio-1.23.0-cp37-cp37m-linux_armv6l.whl grpcio-1.23.0-cp37-cp37m-linux_armv7l.whl
+wget https://www.piwheels.org/simple/tensorflow/tensorflow-1.13.1-cp37-none-linux_armv6l.whl
+cp tensorflow-1.13.1-cp37-none-linux_armv6l.whl tensorflow-1.13.1-cp37-none-linux_armv7l.whl
 cd ../
 
 packages=(
@@ -153,7 +157,7 @@ if $desktop; then
         mkdir -p $local_config_dir
         cp -r $global_config_dir $local_config_dir
     fi
-    sed -i -e 's/road.jpg/mission-space-lab.jpg/g' $local_config
+    sed -i -e 's/temple.jpg/mission-space-lab.jpg/g' $local_config
     t=`date '+%H:%M:%S'`
     echo "$t Installing Mu editor..."
     sudo apt-get install mu-editor -qqy > /dev/null
@@ -170,7 +174,7 @@ else
 fi
 
 cd ../
-sudo rm -rf astro-pi-stretch-installer
+sudo rm -rf astro-pi-buster-installer
 
 t=`date '+%H:%M:%S'`
 echo "$t Astro Pi Installation complete! Run 'sudo reboot' to restart."

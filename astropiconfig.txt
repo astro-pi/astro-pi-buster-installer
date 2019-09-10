@@ -1,5 +1,7 @@
 gpu_mem_512=128
 gpu_mem_1024=640
+gpu_mem_2048=1664
+gpu_mem_4096=3712
 
 [pi1]
 arm_freq=700
@@ -8,4 +10,7 @@ arm_freq=700
 arm_freq=600
 
 [pi3]
+arm_freq=600
+
+[pi4]
 arm_freq=600
