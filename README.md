@@ -1,6 +1,6 @@
 # Astro Pi Buster Installer
 
-Installer for Astro Pi Buster SD card images used in the 2018-2019 competition.
+Installer for Astro Pi Buster SD card images used in the 2019-2020 competition.
 
 ## About
 
