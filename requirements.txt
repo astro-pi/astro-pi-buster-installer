@@ -7,7 +7,7 @@ cryptography==2.6.1
 cycler==0.10.0
 decorator==4.4.0
 entrypoints==0.3
-ephem==13.7.7.0
+ephem==3.7.7.0
 evdev==1.2.0
 gast==0.2.2
 GDAL==2.4.0
