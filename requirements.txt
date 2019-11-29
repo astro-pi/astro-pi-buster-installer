@@ -32,7 +32,7 @@ opencv-contrib-python-headless==3.4.3.18
 opt-einsum==3.0.1
 pandas==0.25.1
 paramiko==2.6.0
-Pillow==5.4.1
+Pillow==6.2.0
 pisense==0.2
 protobuf==3.9.1
 pycparser==2.19
