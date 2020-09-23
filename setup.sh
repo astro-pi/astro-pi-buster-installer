@@ -173,7 +173,7 @@ else
 fi
 
 cd ../
-sudo rm -rf astro-pi-buster-installer
+#sudo rm -rf astro-pi-buster-installer
 
 t=`date '+%H:%M:%S'`
 echo "$t Astro Pi Installation complete! Run 'sudo reboot' to restart."
