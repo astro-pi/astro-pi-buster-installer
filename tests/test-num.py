@@ -57,8 +57,28 @@ def test_sklearn():
     clf.fit(X, y)
     logger.debug(f'sklearn: {clf.predict(X)}')
 
+@tester.test('tensorflow')
+def test_tensorflow():
+    import tensorflow as tf
+    logger.debug(tf.reduce_sum(tf.random.normal([1000, 1000])))
+    # https://github.com/tensorflow/docs/tree/master/site/en/r1/tutorials
+    mnist = tf.keras.datasets.mnist
+    (x_train, y_train),(x_test, y_test) = mnist.load_data()
+    x_train, x_test = x_train / 255.0, x_test / 255.0
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.Flatten(input_shape=(28, 28)),
+        tf.keras.layers.Dense(512, activation=tf.nn.relu),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(10, activation=tf.nn.softmax)
+    ])
+    model.compile(optimizer='adam',
+        loss='sparse_categorical_crossentropy',
+        metrics=['accuracy'])
+    model.fit(x_train, y_train, epochs=1)
+    model.evaluate(x_test, y_test)
+
 logger.info('Testing numerical modules')
-tests = [test_numpy, test_matplotlib, test_pandas, test_scipy, test_skimage, test_sklearn]
+tests = [test_numpy, test_matplotlib, test_pandas, test_scipy, test_skimage, test_sklearn, test_tensorflow]
 for test in tests:
     test()
 
