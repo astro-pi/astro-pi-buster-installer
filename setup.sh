@@ -110,25 +110,24 @@ done
 
 # Install Armv6 versions of opencv/tensorflow/grpcio from wheel files
 
-mkdir wheels
-cd wheels
-wget https://www.piwheels.org/simple/opencv-contrib-python-headless/opencv_contrib_python_headless-3.4.3.18-cp37-cp37m-linux_armv6l.whl
-cp opencv_contrib_python_headless-3.4.3.18-cp37-cp37m-linux_armv6l.whl opencv_contrib_python_headless-3.4.3.18-cp37-cp37m-linux_armv7l.whl
-wget https://www.piwheels.org/simple/grpcio/grpcio-1.23.0-cp37-cp37m-linux_armv6l.whl
-cp grpcio-1.23.0-cp37-cp37m-linux_armv6l.whl grpcio-1.23.0-cp37-cp37m-linux_armv7l.whl
-wget https://www.piwheels.org/simple/tensorflow/tensorflow-1.13.1-cp37-none-linux_armv6l.whl
-cp tensorflow-1.13.1-cp37-none-linux_armv6l.whl tensorflow-1.13.1-cp37-none-linux_armv7l.whl
-cd ../
-
-packages=(
+armv6_packages=(
     opencv-contrib-python-headless
     grpcio
     tensorflow
 )
 
-for package in "${packages[@]}"; do
+mkdir wheels
+for package in "${armv6_packages[@]}"; do
     t=`date '+%H:%M:%S'`
-    echo "$t Installing $package..."
+    echo "$t Downloading armv6l version of $package..."
+    pip3 download `cat requirements.txt | grep $package==` --only-binary=:all: --dest wheels --platform linux_armv6l --find-links wheels
+done
+
+for file in `ls wheels/*armv6l.whl`; do mv $file `echo $file | sed 's/armv6l/armv7l/'` ; done
+
+for package in "${armv6_packages[@]}"; do
+    t=`date '+%H:%M:%S'`
+    echo "$t Installing armv6l version of $package..."
     sudo pip3 install $package --find-links=wheels --no-index > /dev/null
 done
 
