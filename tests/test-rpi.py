@@ -38,6 +38,7 @@ def test_pisense():
 
 @tester.test('sense_hat')
 def test_sensehat():
+    from time import sleep
     from sense_hat import SenseHat
     sense = SenseHat()
     logger.debug(f'sense_hat: {sense.get_humidity()}')
@@ -48,6 +49,7 @@ def test_sensehat():
 @tester.test('picamera')
 def test_picamera():
     import os
+    from time import sleep
     from picamera import PiCamera
     with PiCamera() as camera:
         camera.start_preview()
