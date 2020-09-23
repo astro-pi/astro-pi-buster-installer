@@ -98,25 +98,13 @@ fi
 t=`date '+%H:%M:%S'`
 echo "$t Installing Python packages..."
 
-# Install Python packages from PyPI/piwheels - versions specified in requirements.txt
-
-mapfile -t packages < requirements.txt
-
-for package in "${packages[@]}"; do
-    t=`date '+%H:%M:%S'`
-    echo "$t Installing $package..."
-    sudo pip3 install -q $package > /dev/null
-done
-
-# Install Armv6 versions of opencv/tensorflow/grpcio from wheel files
-
+# Download Armv6 versions of opencv/tensorflow/grpcio from wheel files
 armv6_packages=(
     opencv-contrib-python-headless
     grpcio
     tensorflow
 )
 
-mkdir wheels
 for package in "${armv6_packages[@]}"; do
     t=`date '+%H:%M:%S'`
     echo "$t Downloading armv6l version of $package..."
@@ -125,11 +113,8 @@ done
 
 for file in `ls wheels/*armv6l.whl`; do mv $file `echo $file | sed 's/armv6l/armv7l/'` ; done
 
-for package in "${armv6_packages[@]}"; do
-    t=`date '+%H:%M:%S'`
-    echo "$t Installing armv6l version of $package..."
-    sudo pip3 install $package --find-links=wheels --no-index > /dev/null
-done
+# Install Python packages from PyPI/piwheels - versions specified in requirements.txt
+sudo pip3 install --requirement requirements.txt --only-binary=:all: --find-links wheels -q > /dev/null
 
 # Test Python imports
 
@@ -173,7 +158,7 @@ else
 fi
 
 cd ../
-#sudo rm -rf astro-pi-buster-installer
+sudo rm -rf astro-pi-buster-installer
 
 t=`date '+%H:%M:%S'`
 echo "$t Astro Pi Installation complete! Run 'sudo reboot' to restart."
