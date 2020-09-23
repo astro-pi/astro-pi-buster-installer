@@ -74,15 +74,9 @@ t=`date '+%H:%M:%S'`
 echo "$t Running dist-upgrade"
 sudo apt-get -qqy dist-upgrade > /dev/null
 
-mapfile -t packages < packages.txt
-
 t=`date '+%H:%M:%S'`
 echo "$t Installing new apt packages..."
-for package in "${packages[@]}"; do
-    t=`date '+%H:%M:%S'`
-    echo "$t Installing $package..."
-    sudo apt-get install $package -qqy > /dev/null
-done
+sudo apt-get install `cat packages.txt` -qqy > /dev/null
 
 # Remove git if it wasn't installed before
 
@@ -95,9 +89,6 @@ fi
 
 # Install Python packages
 
-t=`date '+%H:%M:%S'`
-echo "$t Installing Python packages..."
-
 # Download Armv6 versions of opencv/tensorflow/grpcio from wheel files
 armv6_packages=(
     opencv-contrib-python-headless
@@ -108,12 +99,15 @@ armv6_packages=(
 for package in "${armv6_packages[@]}"; do
     t=`date '+%H:%M:%S'`
     echo "$t Downloading armv6l version of $package..."
-    pip3 download `cat requirements.txt | grep $package==` --only-binary=:all: --dest wheels --platform linux_armv6l --find-links wheels
+    pip3 download `cat requirements.txt | grep $package==` --only-binary=:all: --no-deps --dest wheels --platform linux_armv6l --find-links wheels
 done
 
 for file in `ls wheels/*armv6l.whl`; do mv $file `echo $file | sed 's/armv6l/armv7l/'` ; done
 
 # Install Python packages from PyPI/piwheels - versions specified in requirements.txt
+
+t=`date '+%H:%M:%S'`
+echo "$t Installing Python packages..."
 sudo pip3 install --requirement requirements.txt --only-binary=:all: --find-links wheels -q > /dev/null
 
 # Test Python imports
