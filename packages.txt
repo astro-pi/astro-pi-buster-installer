@@ -11,7 +11,6 @@ python3-apt
 python3-pip
 python3-gpiozero
 python3-rpi.gpio
-python3-pygame
 python3-picamera
 python3-colorzero
 python3-gdal
@@ -20,7 +19,6 @@ libatlas3-base
 libhdf5-103
 libsz2
 libharfbuzz0b
-libatlas3-base
 libwebp6
 libtiff5
 libjasper1
