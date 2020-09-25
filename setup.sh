@@ -1,13 +1,15 @@
 #!/bin/bash
 
-set -eu
-
+set -u
 source /etc/os-release
 
+bold='\033[1m'
+norm='\e[39m\033[0m'
+colr='\033[92m'
 logfile='setup.log'
+
 function log () {
-    t=`date '+%H:%M:%S'`
-    echo $t $1 | tee -a $logfile 
+    echo -e "${colr}`date '+%H:%M:%S'` ${bold}$1${norm}" | tee -a $logfile 
 }
 
 # Check we're on Raspbian Buster (Debian 10)
@@ -24,40 +26,14 @@ function enable_camera () {
     sudo raspi-config nonint do_camera 0
 }
 
-function apt_install () {
+function update () {
     log "Updating apt packages"
     sudo apt-get update >> $logfile
   
     # Install apt packages
     log "Running dist-upgrade"
     sudo apt-get -y dist-upgrade >> $logfile
-
-    log "Installing new apt packages..."
-    sudo apt-get install `cat packages.txt` -y >> $logfile
-
 }
-
-function pip_install() {
-    armv6_packages=(
-        opencv-contrib-python-headless
-        grpcio
-        tensorflow
-    )
-    
-    # Download Armv6 versions of opencv/tensorflow/grpcio wheel files
-    for package in "${armv6_packages[@]}"; do
-        log "Downloading armv6l version of $package..."
-        pip3 download `cat requirements.txt | grep $package==` --only-binary=:all: --no-deps --dest wheels --platform linux_armv6l >> $logfile
-    done
-
-    # rename armv6 wheels to pass for armv7
-    for file in `ls wheels/*armv6l.whl`; do mv $file `echo $file | sed 's/armv6l/armv7l/'` ; done
-
-    # Install Python packages from PyPI/piwheels - versions specified in requirements.txt
-    log "Installing Python packages..."
-    sudo pip3 install --requirement requirements.txt --only-binary=:all: --find-links wheels >> $logfile
-}
-
 
 function clone_repository () {
     # Check if git was already installed
@@ -73,7 +49,7 @@ function clone_repository () {
     # Clone this repo to have access to test files and desktop backgrounds
     log "Cloning installation repository"
     rm -rf astro-pi-buster-installer || true # delete if it's already there
-    git clone --single-branch -b $1 https://github.com/astro-pi/astro-pi-buster-installer >> $logfile
+    git clone --progress --single-branch -b $1 https://github.com/astro-pi/astro-pi-buster-installer &>> $logfile
 
     # Remove git if it wasn't installed before
     if ! $git_installed; then
@@ -81,6 +57,32 @@ function clone_repository () {
         sudo apt-get -y purge git >> $logfile
         sudo apt-get -y autoremove >> $logfile
     fi
+}
+
+function apt_install () {
+    log "Installing new apt packages..."
+    sudo apt-get install `cat astro-pi-buster-installer/packages.txt` -y >> $logfile
+}
+
+function pip_install() {
+    armv6_packages=(
+        opencv-contrib-python-headless
+        grpcio
+        tensorflow
+    )
+    
+    # Download Armv6 versions of opencv/tensorflow/grpcio wheel files
+    for package in "${armv6_packages[@]}"; do
+        log "Downloading armv6l version of $package..."
+        pip3 download `cat astro-pi-buster-installer/requirements.txt | grep $package==` --only-binary=:all: --no-deps --dest astro-pi-buster-installer/wheels --platform linux_armv6l >> $logfile
+    done
+
+    # rename armv6 wheels to pass for armv7
+    for file in `ls astro-pi-buster-installer/wheels/*armv6l.whl`; do mv $file `echo $file | sed 's/armv6l/armv7l/'` ; done
+
+    # Install Python packages from PyPI/piwheels - versions specified in requirements.txt
+    log "Installing Python packages..."
+    sudo pip3 install --requirement astro-pi-buster-installer/requirements.txt --only-binary=:all: --find-links astro-pi-buster-installer/wheels >> $logfile
 }
 
 # Test Python imports
