@@ -144,8 +144,19 @@ function lite_vs_desktop () {
 }
 
 function wrap () {
+  if $desktop; then
+      log "Re-instating the piwiz for next boot"
+      sudo cp astro-pi-buster-installer/piwiz.desktop /etc/xdg/autostart/
+  fi
+  log "Re-instating init_resize.sh for next boot"
+  sudo sed -i 's|quiet|quiet init=/usr/lib/raspi-config/init_resize.sh|' /boot/cmdline.txt
+  log "Removing WiFi configuration"
+  head -2 /etc/wpa_supplicant/wpa_supplicant.conf | sudo tee /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
+  log "Disabling ssh"
+  sudo systemctl disable ssh
   log "Removing repository"
   rm -rf astro-pi-buster-installer
+  log "Deleting .deb cache"
   sudo rm -rf /var/cache/apt/archives/
   log "Astro Pi Installation complete! Run 'sudo reboot' to restart."
 }
