@@ -153,10 +153,14 @@ function wrap () {
   log "Removing WiFi configuration"
   head -2 /etc/wpa_supplicant/wpa_supplicant.conf | sudo tee /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
   log "Disabling ssh"
-  sudo systemctl disable ssh
+  sudo systemctl disable ssh &>> $logfile
   log "Removing repository"
   rm -rf astro-pi-buster-installer
   log "Deleting .deb cache"
   sudo rm -rf /var/cache/apt/archives/
+  log "Deleting pip cache"
+  sudo rm -rf .cache
+  log "Deleting other misc items"
+  sudo rm -f .bash_history .wget_hsts
   log "Astro Pi Installation complete! Run 'sudo reboot' to restart."
 }
