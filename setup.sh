@@ -36,6 +36,11 @@ function update () {
 }
 
 function clone_repository () {
+    if [ -z $1 ]; then
+        log "You need to specify a branch to clone, e.g.: clone_repository 2020"
+        exit 1
+    fi
+
     # Check if git was already installed
     git=`dpkg -l | grep "ii  git" | wc -l`
     if [ $git -gt 0 ]; then
