@@ -3,7 +3,7 @@
 bold='\033[1m'
 norm='\e[39m\033[0m'
 colr='\033[92m'
-logfile='setup.log'
+logfile='/home/pi/setup.log'
 
 function log () {
     echo -e "${colr}`date '+%H:%M:%S'` ${bold}$1${norm}" | tee -a $logfile 
@@ -102,8 +102,6 @@ function pip_install() {
 #fi
 
 function lite_vs_desktop () {
-    cd astro-pi-buster-installer
-
     # Check we're on desktop or lite
     chromium=`dpkg -l | grep chromium | wc -l`
     if [ $chromium -gt 0 ]; then
@@ -117,10 +115,10 @@ function lite_vs_desktop () {
     if $desktop; then
         # Set Chromium homepage and bookmarks
         log "Setting your Chromium homepage and bookmarks..."
-        sudo python3 chromium.py
+        sudo python3 astro-pi-buster-installer/chromium.py
 
         log "Installing desktop backgrounds"
-        sudo cp desktop-backgrounds/* /usr/share/rpd-wallpaper/
+        sudo cp astro-pi-buster-installer/desktop-backgrounds/* /usr/share/rpd-wallpaper/
         # Set the desktop background to MSL
         global_config_dir="/etc/xdg/pcmanfm/LXDE-pi"
         local_config_dir="/home/pi/.config/pcmanfm"
@@ -129,7 +127,7 @@ function lite_vs_desktop () {
             mkdir -p $local_config_dir
             cp -r $global_config_dir $local_config_dir
         fi
-        sed -i -e 's/temple.jpg/mission-space-lab.jpg/g' $local_config
+        sed -i -e 's/temple.jpg/mission-space-lab.earth.jpg/g' $local_config
         
         log "Installing Mu editor..."
         sudo apt-get install mu-editor -y >> $logfile
@@ -137,13 +135,12 @@ function lite_vs_desktop () {
         log "Setting MOTD"
         sudo /bin/sh motd.sh /etc/motd
         log "Implementing performance throttling"
-        sudo cp astropiconfig.txt /boot/
+        sudo cp astro-pi-buster-installer/astropiconfig.txt /boot/
         echo "include astropiconfig.txt" | sudo tee --append /boot/config.txt > /dev/null
         if ! grep -q 'maxcpus=1' /boot/cmdline.txt; then
             sudo sed -i -e 's/rootwait/rootwait maxcpus=1/g' /boot/cmdline.txt
         fi
     fi
-    cd ../
 }
 
 function wrap () {
