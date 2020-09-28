@@ -12,7 +12,7 @@ function log () {
 function start () {
     # Check we're on Raspbian Buster (Debian 10)
     source /etc/os-release
-    if [ $VERSION_ID -neq 10 ]; then
+    if [ ! $VERSION_ID -eq 10 ]; then
         echo "You seem to be using {$PRETTY_NAME}. This installer is for Raspbian Buster."
         exit 1
     fi
@@ -80,12 +80,14 @@ function pip_install() {
     
     # Download Armv6 versions of opencv/tensorflow/grpcio wheel files
     for package in "${armv6_packages[@]}"; do
-        log "Downloading armv6l version of $package..."
-        pip3 download `cat $REPO/requirements.txt | grep $package==` --only-binary=:all: --no-deps --dest $REPO/wheels --platform linux_armv6l >> $logfile
+        if [ `ls $REPO/wheels | grep $package | wc -l` -gt 0 ]; then
+          log "Downloading armv6l version of $package..."
+          pip3 download `cat $REPO/requirements.txt | grep $package==` --only-binary=:all: --no-deps --dest $REPO/wheels --platform linux_armv6l >> $logfile
+        fi
     done
 
-    # rename armv6 wheels to pass for armv7
-    for file in `ls $REPO/wheels/*armv6l.whl`; do mv $file `echo $file | sed 's/armv6l/armv7l/'` ; done
+    # duplicate armv6 wheels to pass for armv7
+    for file in `ls $REPO/wheels/*armv6l.whl`; do cp $file `echo $file | sed 's/armv6l/armv7l/'` ; done
 
     # Install Python packages from PyPI/piwheels - versions specified in requirements.txt
     log "Installing Python packages..."
