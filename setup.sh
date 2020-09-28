@@ -5,11 +5,11 @@ norm='\e[39m\033[0m'
 colr='\033[92m'
 logfile='/home/pi/setup.log'
 
-export REPO="astro-pi-buster-installer"
-
 function log () {
     echo -e "${colr}`date '+%H:%M:%S'` ${bold}$1${norm}" | tee -a $logfile 
 }
+
+export REPO="astro-pi-buster-installer"
 
 function start () {
     # Check we're on Raspbian Buster (Debian 10)

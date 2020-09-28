@@ -5,7 +5,6 @@ norm='\e[39m\033[0m'
 colr='\033[92m'
 logfile='/home/pi/setup.log'
 
-
 function log () {
     echo -e "${colr}`date '+%H:%M:%S'` ${bold}$1${norm}" | tee -a $logfile 
 }
@@ -19,45 +18,9 @@ function update () {
     sudo apt-get -y dist-upgrade >> $logfile
 }
 
-function clone_repository () {
-
-    if [ -z $1 ]; then
-        log "You need to specify a branch to clone, e.g.: clone_repository 2020"
-        exit 1
-    fi
-
-    if [ -z $2 ]; then
-        repo="astro-pi-buster-installer"
-    else
-        repo=$2
-    fi
-
-    # Check if git was already installed
-    git=`dpkg -l | grep "ii  git" | wc -l`
-    if [ $git -gt 0 ]; then
-        git_installed=true
-    else
-        git_installed=false
-        log "Installing git"
-        sudo apt-get install git -y >> $logfile
-    fi
-
-    # Clone this repo to have access to test files and desktop backgrounds
-    log "Cloning installation repository"
-    rm -rf astro-pi-buster-installer || true # delete if it's already there
-    git clone --progress --single-branch -b $1 https://github.com/astro-pi/astro-pi-buster-installer &>> $logfile
-
-    # Remove git if it wasn't installed before
-    if ! $git_installed; then
-        log "Removing git"
-        sudo apt-get -y purge git >> $logfile
-        sudo apt-get -y autoremove >> $logfile
-    fi
-}
-
 function apt_install () {
     log "Installing new apt packages..."
-    sudo apt-get install `cat astro-pi-buster-installer/packages.txt` -y >> $logfile
+    sudo apt-get install `cat $REPO/packages.txt` -y >> $logfile
 }
 
 function pip_install() {
@@ -70,15 +33,21 @@ function pip_install() {
     # Download Armv6 versions of opencv/tensorflow/grpcio wheel files
     for package in "${armv6_packages[@]}"; do
         log "Downloading armv6l version of $package..."
-        pip3 download `cat astro-pi-buster-installer/requirements.txt | grep $package==` --only-binary=:all: --no-deps --dest astro-pi-buster-installer/wheels --platform linux_armv6l >> $logfile
+        pip3 download `cat $REPO/requirements.txt | grep $package==` --only-binary=:all: --no-deps --dest $REPO/wheels --platform linux_armv6l >> $logfile
     done
 
     # rename armv6 wheels to pass for armv7
-    for file in `ls astro-pi-buster-installer/wheels/*armv6l.whl`; do mv $file `echo $file | sed 's/armv6l/armv7l/'` ; done
+    for file in `ls $REPO/wheels/*armv6l.whl`; do mv $file `echo $file | sed 's/armv6l/armv7l/'` ; done
 
     # Install Python packages from PyPI/piwheels - versions specified in requirements.txt
     log "Installing Python packages..."
-    sudo pip3 install --requirement astro-pi-buster-installer/requirements.txt --only-binary=:all: --find-links astro-pi-buster-installer/wheels >> $logfile
+    sudo pip3 install --requirement $REPO/requirements.txt --only-binary=:all: --find-links $REPO/wheels >> $logfile
+}
+
+function enable_camera () {
+    # Enable the camera
+    log "Enabling the camera interface"
+    sudo raspi-config nonint do_camera 0
 }
 
 function lite_vs_desktop () {
@@ -97,10 +66,10 @@ function lite_vs_desktop () {
 
         # Set Chromium homepage and bookmarks
         log "Setting your Chromium homepage and bookmarks..."
-        sudo python3 astro-pi-buster-installer/files/chromium.py
+        sudo python3 $REPO/chromium.py
 
         log "Installing desktop backgrounds"
-        sudo cp astro-pi-buster-installer/desktop-backgrounds/* /usr/share/rpd-wallpaper/
+        sudo cp $REPO/desktop-backgrounds/* /usr/share/rpd-wallpaper/
         # Set the desktop background to MSL
         global_config_dir="/etc/xdg/pcmanfm/LXDE-pi"
         local_config_dir="/home/pi/.config/pcmanfm"
@@ -109,32 +78,28 @@ function lite_vs_desktop () {
             mkdir -p $local_config_dir
             cp -r $global_config_dir $local_config_dir
         fi
-        sed -i -e 's/temple.jpg/mission-space-lab.earth.jpg/g' $local_config
+        sed -i -e 's/temple.jpg/mission-space-lab.sunglint.jpg/g' $local_config
 
         log "Installing Mu editor..."
         sudo apt-get install mu-editor -y >> $logfile
     else
         log "Setting MOTD"
-        sudo /bin/sh astro-pi-buster-installer/files/motd.sh /etc/motd
+        sudo /bin/sh $REPO/motd.sh /etc/motd
         log "Implementing performance throttling"
-        sudo cp astro-pi-buster-installer/files/astropiconfig.txt /boot/
+        sudo cp $REPO/files/astropiconfig.txt /boot/
         echo "include astropiconfig.txt" | sudo tee --append /boot/config.txt > /dev/null
         if ! grep -q 'maxcpus=1' /boot/cmdline.txt; then
             sudo sed -i -e 's/rootwait/rootwait maxcpus=1/g' /boot/cmdline.txt
         fi
     fi
-}
-
-function enable_camera () {
-    # Enable the camera
-    log "Enabling the camera interface"
-    sudo raspi-config nonint do_camera 0
+ 
+    export desktop
 }
 
 function wrap () {
   if $desktop; then
       log "Re-instating the piwiz for next boot"
-      sudo cp astro-pi-buster-installer/piwiz.desktop /etc/xdg/autostart/
+      sudo cp $REPO/files/piwiz.desktop /etc/xdg/autostart/
   fi
   log "Re-instating init_resize.sh for next boot"
   sudo sed -i 's|quiet|quiet init=/usr/lib/raspi-config/init_resize.sh|' /boot/cmdline.txt
@@ -143,7 +108,7 @@ function wrap () {
   log "Disabling ssh"
   sudo systemctl disable ssh &>> $logfile
   log "Removing repository"
-  rm -rf astro-pi-buster-installer
+  rm -rf $REPO
   log "Deleting .deb cache"
   sudo rm -rf /var/cache/apt/archives/
   log "Deleting pip cache"
