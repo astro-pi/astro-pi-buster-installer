@@ -5,6 +5,8 @@ norm='\e[39m\033[0m'
 colr='\033[92m'
 logfile='/home/pi/setup.log'
 
+
+
 function log () {
     echo -e "${colr}`date '+%H:%M:%S'` ${bold}$1${norm}" | tee -a $logfile 
 }
@@ -36,9 +38,16 @@ function update () {
 }
 
 function clone_repository () {
+
     if [ -z $1 ]; then
         log "You need to specify a branch to clone, e.g.: clone_repository 2020"
         exit 1
+    fi
+
+    if [ -z $2 ]; then
+        repo="astro-pi-buster-installer"
+    else
+        repo=$2
     fi
 
     # Check if git was already installed
@@ -113,9 +122,11 @@ function lite_vs_desktop () {
     fi
 
     if $desktop; then
+        echo 'XDG_DATA_DIR="$HOME/Data"' >> .config/user-dirs.dirs
+
         # Set Chromium homepage and bookmarks
         log "Setting your Chromium homepage and bookmarks..."
-        sudo python3 astro-pi-buster-installer/chromium.py
+        sudo python3 astro-pi-buster-installer/files/chromium.py
 
         log "Installing desktop backgrounds"
         sudo cp astro-pi-buster-installer/desktop-backgrounds/* /usr/share/rpd-wallpaper/
@@ -128,14 +139,14 @@ function lite_vs_desktop () {
             cp -r $global_config_dir $local_config_dir
         fi
         sed -i -e 's/temple.jpg/mission-space-lab.earth.jpg/g' $local_config
-        
+
         log "Installing Mu editor..."
         sudo apt-get install mu-editor -y >> $logfile
     else
         log "Setting MOTD"
-        sudo /bin/sh motd.sh /etc/motd
+        sudo /bin/sh astro-pi-buster-installer/files/motd.sh /etc/motd
         log "Implementing performance throttling"
-        sudo cp astro-pi-buster-installer/astropiconfig.txt /boot/
+        sudo cp astro-pi-buster-installer/files/astropiconfig.txt /boot/
         echo "include astropiconfig.txt" | sudo tee --append /boot/config.txt > /dev/null
         if ! grep -q 'maxcpus=1' /boot/cmdline.txt; then
             sudo sed -i -e 's/rootwait/rootwait maxcpus=1/g' /boot/cmdline.txt
