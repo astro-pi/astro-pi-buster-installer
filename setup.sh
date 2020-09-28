@@ -12,20 +12,27 @@ function log () {
 function start () {
     # Check we're on Raspbian Buster (Debian 10)
     source /etc/os-release
-    if [ $VERSION_ID -eq 10 ]; then
-        log "You are running Raspbian Buster. Starting Astro Pi setup..."
-    else
-        echo "You seem to be using {$PRETTY_NAME}. This installer is for Raspbian Buster. Please download Raspbian Buster from the Raspberry Pi website http://rpf.io/raspbian"
+    if [ $VERSION_ID -neq 10 ]; then
+        echo "You seem to be using {$PRETTY_NAME}. This installer is for Raspbian Buster."
         exit 1
     fi
+    log "You are running Raspbian Buster."
+    
+    if [ -z $REPO ]; then
+        echo "You need to set the REPO environment variable."
+        exit 1
+    fi
+    log "The repository is $REPO"
+
+    if [ -z $BRANCH ]; then
+        log "You need to set the BRANCH variable."
+        exit 1
+    fi
+    log "The branch is $BRANCH"
+    log "Starting Astro Pi setup..."
 }
 
 function clone () {
-    if [ -z $1 ]; then
-        log "You need to specify a branch to clone, e.g.: clone 2020"
-        exit 1
-    fi
-
     # Check if git was already installed
     git=`dpkg -l | grep "ii  git" | wc -l`
     if [ $git -gt 0 ]; then
@@ -40,7 +47,7 @@ function clone () {
     # Clone the repo
     log "Cloning installation repository"
     rm -rf $REPO || true # delete if it's already there
-    git clone --progress --single-branch -b $1 https://github.com/astro-pi/$REPO &>> $logfile
+    git clone --progress --single-branch -b $BRANCH https://github.com/astro-pi/$REPO &>> $logfile
 
     # Remove git if it wasn't installed before
     if ! $git_installed; then
@@ -93,6 +100,7 @@ function enable_camera () {
 
 function desktop () {
     echo `dpkg -l | grep chromium | wc -l`
+}
 
 function lite_vs_desktop () {
 
@@ -130,30 +138,30 @@ function lite_vs_desktop () {
 }
 
 function wrap () {
-  if [ `desktop` -gt 0 ]; then
-      log "Re-instating the piwiz for next boot"
-      sudo cp $REPO/files/piwiz.desktop /etc/xdg/autostart/
-  fi
-  log "Re-instating init_resize.sh for next boot"
-  sudo sed -i 's|quiet|quiet init=/usr/lib/raspi-config/init_resize.sh|' /boot/cmdline.txt
-  log "Removing WiFi configuration"
-  head -2 /etc/wpa_supplicant/wpa_supplicant.conf | sudo tee /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
-  log "Disabling ssh"
-  sudo systemctl disable ssh &>> $logfile
-  log "Removing repository"
-  rm -rf $REPO
-  log "Deleting .deb cache"
-  sudo rm -rf /var/cache/apt/archives/
-  log "Deleting pip cache"
-  sudo rm -rf .cache
-  log "Deleting other misc items"
-  sudo rm -f .bash_history .wget_hsts
-  log "Astro Pi Installation complete! Run 'sudo reboot' to restart."
+    if [ `desktop` -gt 0 ]; then
+        log "Re-instating the piwiz for next boot"
+        sudo cp $REPO/files/piwiz.desktop /etc/xdg/autostart/
+    fi
+    log "Re-instating init_resize.sh for next boot"
+    sudo sed -i 's|quiet|quiet init=/usr/lib/raspi-config/init_resize.sh|' /boot/cmdline.txt
+    log "Removing WiFi configuration"
+    head -2 /etc/wpa_supplicant/wpa_supplicant.conf | sudo tee /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
+    log "Disabling ssh"
+    sudo systemctl disable ssh &>> $logfile
+    log "Removing repository"
+    rm -rf $REPO
+    log "Deleting .deb cache"
+    sudo rm -rf /var/cache/apt/archives/
+    log "Deleting pip cache"
+    sudo rm -rf .cache
+    log "Deleting other misc items"
+    sudo rm -f .bash_history .wget_hsts
+    log "Astro Pi Installation complete! Run 'sudo reboot' to restart."
 }
 
 function setup () {
-  start
-  clone 2020
+    start
+    clone
 }
 
 function install () {
