@@ -5,6 +5,7 @@ norm='\e[39m\033[0m'
 colr='\033[92m'
 logfile='/home/pi/setup.log'
 
+export REPO="astro-pi-buster-installer"
 
 function log () {
     echo -e "${colr}`date '+%H:%M:%S'` ${bold}$1${norm}" | tee -a $logfile 
@@ -41,8 +42,8 @@ function clone () {
 
     # Clone the repo
     log "Cloning installation repository"
-    rm -rf astro-pi-buster-installer || true # delete if it's already there
-    git clone --progress --single-branch -b $1 https://github.com/astro-pi/astro-pi-buster-installer &>> $logfile
+    rm -rf $REPO || true # delete if it's already there
+    git clone --progress --single-branch -b $1 https://github.com/astro-pi/$REPO &>> $logfile
 
     # Remove git if it wasn't installed before
     if ! $git_installed; then
@@ -52,4 +53,5 @@ function clone () {
     fi
 }
 
+start
 clone 2020
