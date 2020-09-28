@@ -1,7 +1,7 @@
 #!/bin/bash
 
 bold='\033[1m'
-norm='\e[39m\033[0m'
+norm='\033[39m\033[0m'
 colr='\033[92m'
 logfile='/home/pi/setup.log'
 
@@ -127,7 +127,7 @@ function lite_vs_desktop () {
         sudo apt-get install mu-editor -y >> $logfile
     else
         log "Setting MOTD"
-        sudo /bin/sh $REPO/motd.sh /etc/motd
+        sudo cp $REPO/files/motd /etc/motd
         log "Implementing performance throttling"
         sudo cp $REPO/files/astropiconfig.txt /boot/
         echo "include astropiconfig.txt" | sudo tee --append /boot/config.txt > /dev/null
