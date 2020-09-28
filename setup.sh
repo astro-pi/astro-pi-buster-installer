@@ -6,7 +6,6 @@ colr='\033[92m'
 logfile='/home/pi/setup.log'
 
 
-
 function log () {
     echo -e "${colr}`date '+%H:%M:%S'` ${bold}$1${norm}" | tee -a $logfile 
 }
@@ -98,17 +97,6 @@ function pip_install() {
     log "Installing Python packages..."
     sudo pip3 install --requirement astro-pi-buster-installer/requirements.txt --only-binary=:all: --find-links astro-pi-buster-installer/wheels >> $logfile
 }
-
-# Test Python imports
-#t=`date '+%H:%M:%S'`
-#echo "$t Testing importing your Python packages..."
-#if python3 -W ignore test.py; then
-#    t=`date '+%H:%M:%S'`
-#    echo "$t All Python libraries imported ok"
-#else
-#    t=`date '+%H:%M:%S'`
-#    echo "$t There were errors with the Python libraries. See above for more information."
-#fi
 
 function lite_vs_desktop () {
     # Check we're on desktop or lite
