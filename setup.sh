@@ -175,3 +175,7 @@ function install () {
     enable_camera
     lite_vs_desktop
 }
+
+function test() {
+    for test in `ls $REPO/tests/test-*.py`; do python3 $test; done
+}
