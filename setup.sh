@@ -114,7 +114,7 @@ function lite_vs_desktop () {
             mkdir -p $local_config_dir
             cp -r $global_config_dir $local_config_dir
         fi
-        sed -i -e 's/temple.jpg/mission-space-lab.sunglint.jpg/g' $local_config
+        sed -i -e 's|wallpaper=.*|wallpaper=/usr/share/rpd-wallpaper/mission_space_lab.sunglint.png|g' $local_config
 
         log "Installing Mu editor..."
         sudo apt-get install mu-editor -y >> $logfile
