@@ -86,12 +86,8 @@ You can even monitor the log file "live", as it is generated, using
 ### Testing the Python environment
 
 The `tests` folder contains Python programs that import a range of installed modules
-and test their functionality. You can run each of them individually or use the line
-below to run them all:
-
-```bash
-for test in `ls $REPO/tests/test-*.py`; do python3 $test; done
-```
+and test their functionality. You can run each of them individually or type `test` to 
+run them all:
 
 Also in the `tests` folder, you can find and test `astro-example.py`, which contains the code for 
 the ["Worked example" presented in the Mission Space Lab Phase 2 guide](https://projects.raspberrypi.org/en/projects/code-for-your-astro-pi-mission-space-lab-experiment/10).
