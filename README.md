@@ -51,6 +51,14 @@ rest of the scripts and files that are necessary.
 setup
 ```
 
+If you'd like to monitor the process more closely and have more fine-grained control over it, 
+you can _instead_ invoke the functions that `setup` calls individually.
+
+```bash
+start
+clone
+```
+
 ## Install
 
 Use the `install` function to complete setting up the system.
@@ -59,10 +67,23 @@ Use the `install` function to complete setting up the system.
 install
 ```
 
+If you'd like to monitor the process more closely and have more fine-grained control over it, 
+you can _instead_ invoke the functions that `install` calls individually.
+
+```bash
+update
+apt_install
+pip_install
+enable_camera
+lite_vs_desktop
+```
+
 The output of `install` contains a very brief summary of each step 
 but the complete output generated is logged to the `/home/pi/setup.log` file. 
+You can even monitor the log file "live", as it is generated, using
+`tail -f setup.log` in a separate terminal.
 
-### Testing
+### Testing the Python environment
 
 The `tests` folder contains Python programs that import a range of installed modules
 and test their functionality. You can run each of them individually or use the line
@@ -74,6 +95,8 @@ for test in `ls $REPO/tests/test-*.py`; do python3 $test; done
 
 Also in the `tests` folder, you can find and test `astro-example.py`, which contains the code for 
 the ["Worked example" presented in the Mission Space Lab Phase 2 guide](https://projects.raspberrypi.org/en/projects/code-for-your-astro-pi-mission-space-lab-experiment/10).
+
+Make sure you have rebooted your system before you perform any of the tests.
 
 ### Creating images
 
