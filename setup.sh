@@ -5,6 +5,9 @@ norm='\033[39m\033[0m'
 colr='\033[92m'
 logfile='/home/pi/setup.log'
 
+export REPO="astro-pi-buster-installer"
+export BRANCH="2020"
+
 function log () {
     echo -e "${colr}`date '+%H:%M:%S'` ${bold}$1${norm}" | tee -a $logfile 
 }
@@ -22,23 +25,18 @@ function start () {
         echo "You need to set the REPO environment variable."
         exit 1
     fi
-    log "The repository is $REPO"
-
+    
     if [ -z $BRANCH ]; then
         log "You need to set the BRANCH variable."
         exit 1
     fi
-    log "The branch is $BRANCH"
-    log "Starting Astro Pi setup..."
+    log "Starting Astro Pi setup for $REPO/$BRANCH..."
 }
 
 function clone () {
     # Check if git was already installed
-    git=`dpkg -l | grep "ii  git" | wc -l`
-    if [ $git -gt 0 ]; then
-        git_installed=true
-    else
-        git_installed=false
+    export git=`dpkg -l | grep "ii  git " | wc -l`
+    if [ $git -eq 0 ]; then
         log "Installing git"
     	sudo apt-get update >> $logfile
         sudo apt-get install git -y >> $logfile
@@ -48,13 +46,6 @@ function clone () {
     log "Cloning installation repository"
     rm -rf $REPO || true # delete if it's already there
     git clone --progress --single-branch -b $BRANCH https://github.com/astro-pi/$REPO &>> $logfile
-
-    # Remove git if it wasn't installed before
-    if ! $git_installed; then
-        log "Removing git"
-        sudo apt-get -y purge git >> $logfile
-        sudo apt-get -y autoremove >> $logfile
-    fi
 }
 
 function update () {
@@ -152,6 +143,13 @@ function wrap () {
     sudo systemctl disable ssh &>> $logfile
     log "Removing repository"
     rm -rf $REPO
+    # Remove git if it wasn't installed before
+    if [ $git -eq 0 ]; then
+        log "Removing git"
+        sudo apt-get -y purge git >> $logfile
+    fi
+    log "Autoremoving packages"
+    sudo apt-get -y autoremove >> $logfile
     log "Deleting .deb cache"
     sudo rm -rf /var/cache/apt/archives/
     log "Deleting pip cache"
