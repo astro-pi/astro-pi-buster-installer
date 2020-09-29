@@ -20,12 +20,12 @@ function start () {
         exit 1
     fi
     log "You are running Raspbian Buster."
-    
+
     if [ -z $REPO ]; then
         echo "You need to set the REPO environment variable."
         exit 1
     fi
-    
+
     if [ -z $BRANCH ]; then
         log "You need to set the BRANCH variable."
         exit 1
@@ -35,11 +35,12 @@ function start () {
 
 function clone () {
     # Check if git was already installed
-    export git=`dpkg -l | grep "ii  git " | wc -l`
+    git=`dpkg -l | grep "ii  git " | wc -l`
     if [ $git -eq 0 ]; then
         log "Installing git"
-    	sudo apt-get update >> $logfile
+        sudo apt-get update >> $logfile
         sudo apt-get install git -y >> $logfile
+        touch /home/pi/.git-installed
     fi
 
     # Clone the repo
@@ -51,7 +52,7 @@ function clone () {
 function update () {
     log "Updating apt packages"
     sudo apt-get update >> $logfile
-  
+
     # Install apt packages
     log "Running dist-upgrade"
     sudo apt-get -y dist-upgrade >> $logfile
@@ -68,10 +69,10 @@ function pip_install() {
         grpcio
         tensorflow
     )
-    
+
     # Download Armv6 versions of opencv/tensorflow/grpcio wheel files
     for package in "${armv6_packages[@]}"; do
-        if [ `ls $REPO/wheels | grep $package | wc -l` -gt 0 ]; then
+        if [ `ls $REPO/wheels | grep $package | wc -l` -eq 0 ]; then
           log "Downloading armv6l version of $package..."
           pip3 download `cat $REPO/requirements.txt | grep $package==` --only-binary=:all: --no-deps --dest $REPO/wheels --platform linux_armv6l >> $logfile
         fi
@@ -91,13 +92,13 @@ function enable_camera () {
     sudo raspi-config nonint do_camera 0
 }
 
-function desktop () {
+function is_desktop () {
     echo `dpkg -l | grep chromium | wc -l`
 }
 
 function lite_vs_desktop () {
 
-    if [ `desktop` -gt 0 ]; then
+    if [ `is_desktop` -gt 0 ]; then
         echo 'XDG_DATA_DIR="$HOME/Data"' >> .config/user-dirs.dirs
 
         # Set Chromium homepage and bookmarks
@@ -131,22 +132,25 @@ function lite_vs_desktop () {
 }
 
 function wrap () {
-    if [ `desktop` -gt 0 ]; then
-        log "Re-instating the piwiz for next boot"
+    if [ `is_desktop` -gt 0 ]; then
+        log "Reinstating the piwiz for next boot"
         sudo cp $REPO/files/piwiz.desktop /etc/xdg/autostart/
     fi
-    log "Re-instating init_resize.sh for next boot"
-    sudo sed -i 's|quiet|quiet init=/usr/lib/raspi-config/init_resize.sh|' /boot/cmdline.txt
+    if ! grep -q 'init_resize.sh' /boot/cmdline.txt; then
+      log "Reinstating init_resize.sh for next boot"
+      sudo sed -i 's|$| init=/usr/lib/raspi-config/init_resize.sh|' /boot/cmdline.txt
+    fi
     log "Removing WiFi configuration"
     head -2 /etc/wpa_supplicant/wpa_supplicant.conf | sudo tee /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
     log "Disabling ssh"
     sudo systemctl disable ssh &>> $logfile
-    log "Removing repository"
+    log "Deleting repository contents"
     rm -rf $REPO
     # Remove git if it wasn't installed before
-    if [ $git -eq 0 ]; then
+    if [ -f /home/pi/.git-installed ]; then
         log "Removing git"
         sudo apt-get -y purge git >> $logfile
+        rm /home/pi/.git-installed
     fi
     log "Autoremoving packages"
     sudo apt-get -y autoremove >> $logfile
