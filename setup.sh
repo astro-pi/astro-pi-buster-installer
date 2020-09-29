@@ -138,7 +138,7 @@ function wrap () {
     fi
     if ! grep -q 'init_resize.sh' /boot/cmdline.txt; then
       log "Reinstating init_resize.sh for next boot"
-      sudo sed -i 's|$| init=/usr/lib/raspi-config/init_resize.sh|' /boot/cmdline.txt
+      sudo sed -i 's|quiet|quiet init=/usr/lib/raspi-config/init_resize.sh|' /boot/cmdline.txt
     fi
     log "Removing WiFi configuration"
     head -2 /etc/wpa_supplicant/wpa_supplicant.conf | sudo tee /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
