@@ -96,8 +96,11 @@ Make sure you have rebooted your system before you perform any of the tests.
 
 ### Creating images
 
-If you are using the installer to generate OS images, run the `wrap` function 
-as a last step before cloning/shrinking the image:
+When you are done setting up the environment, run `wrap` to do any necessary 
+cleaning up.
+
+If you are using the installer to generate OS images, also run `set_resize` 
+as a last step before shrinking, so that the filesystem is resized on first boot. 
 
 ```bash
 wrap
