@@ -175,7 +175,10 @@ function wrap () {
     log "Disabling ssh"
     sudo systemctl disable ssh &>> $logfile
     log "Deleting repository contents"
-    cp $REPO/files/resize2fs_once $REPO/files/piwiz.desktop /home/pi/
+    cp $REPO/files/resize2fs_once /home/pi/
+    if is_desktop; then
+        cp $REPO/files/piwiz.desktop /home/pi/
+    fi
     rm -rf $REPO
     # Remove git if it wasn't installed before
     if [ -f /home/pi/.git-installed ]; then
