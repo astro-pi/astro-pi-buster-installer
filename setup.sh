@@ -155,26 +155,27 @@ function lite_vs_desktop () {
 }
 
 function set_resize () {
+    if is_desktop; then
+        log "Reinstating the piwiz for next boot"
+        sudo mv /home/pi/piwiz.desktop /etc/xdg/autostart/
+    fi
     if ! grep -q 'init_resize.sh' /boot/cmdline.txt; then
-        echo "Preparing to resize filesystem on next boot"
+        log "Preparing to resize filesystem on next boot"
         sudo sed -i 's|$| init=/usr/lib/raspi-config/init_resize.sh|' /boot/cmdline.txt
-        sudo mv home/pi/resize2fs_once /etc/init.d/
+        sudo mv /home/pi/resize2fs_once /etc/init.d/
         sudo chmod +x /etc/init.d/resize2fs_once
         sudo systemctl enable resize2fs_once
     fi
+    sudo rm -f /home/pi/.bash_history /home/pi/.python_history /home/pi/.wget-hsts /home/pi/setup.log /home/pi/setup.sh
 }
 
 function wrap () {
-    if is_desktop; then
-        log "Reinstating the piwiz for next boot"
-        sudo cp $REPO/files/piwiz.desktop /etc/xdg/autostart/
-    fi
     log "Removing WiFi configuration"
     head -2 /etc/wpa_supplicant/wpa_supplicant.conf | sudo tee /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
     log "Disabling ssh"
     sudo systemctl disable ssh &>> $logfile
     log "Deleting repository contents"
-    cp $REPO/files/resize2fs_once /home/pi
+    cp $REPO/files/resize2fs_once $REPO/files/piwiz.desktop /home/pi/
     rm -rf $REPO
     # Remove git if it wasn't installed before
     if [ -f /home/pi/.git-installed ]; then
