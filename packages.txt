@@ -28,4 +28,4 @@ libgstreamer1.0-0
 libavcodec58
 libavformat58
 libswscale5
-
+libgtk-3-0

@@ -1,4 +1,3 @@
-libgtk-3-0
 python3-sense-emu sense-emu-tools
 digikam
 
