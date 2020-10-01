@@ -12,6 +12,14 @@ function log () {
     echo -e "${colr}`date '+%H:%M:%S'` ${bold}$1${norm}" | tee -a $logfile 
 }
 
+function is_desktop () {
+    if [ `dpkg -l | grep chromium | wc -l` -gt 0 ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 function start () {
     # Check we're on Raspbian Buster (Debian 10)
     source /etc/os-release
@@ -19,7 +27,12 @@ function start () {
         echo "You seem to be using {$PRETTY_NAME}. This installer is for Raspbian Buster."
         exit 1
     fi
-    log "You are running Raspbian Buster."
+
+    if is_desktop; then
+        log "You are running Raspbian Buster (Desktop version)."
+    else
+        log "You are running Raspbian Buster (Lite version)."
+    fi
 
     if [ -z $REPO ]; then
         echo "You need to set the REPO environment variable."
@@ -58,9 +71,21 @@ function update () {
     sudo apt-get -y dist-upgrade >> $logfile
 }
 
+function digikam_fix () {
+    cat >> /home/pi/.bashrc << EOF
+export QT_QPA_PLATFORMTHEME=gtk3
+export QT_STYLE_OVERRIDE=gtk3
+EOF
+}
+
 function apt_install () {
     log "Installing new apt packages..."
-    sudo apt-get install `cat $REPO/packages.txt` -y >> $logfile
+    if is_desktop; then
+        sudo apt-get install `cat $REPO/packages.txt $REPO/packages.desktop.txt` --no-install-recommends -y >> $logfile
+        if ! grep -q digikam $REPO/packages.txt; then digikam_fix; fi
+    else
+        sudo apt-get install `cat $REPO/packages.txt` --no-install-recommends -y >> $logfile
+    fi
 }
 
 function pip_install() {
@@ -92,13 +117,9 @@ function enable_camera () {
     sudo raspi-config nonint do_camera 0
 }
 
-function is_desktop () {
-    echo `dpkg -l | grep chromium | wc -l`
-}
-
 function lite_vs_desktop () {
 
-    if [ `is_desktop` -gt 0 ]; then
+    if is_desktop; then
         echo 'XDG_DATA_DIR="$HOME/Data"' >> .config/user-dirs.dirs
 
         # Set Chromium homepage and bookmarks
@@ -132,7 +153,7 @@ function lite_vs_desktop () {
 }
 
 function wrap () {
-    if [ `is_desktop` -gt 0 ]; then
+    if is_desktop; then
         log "Reinstating the piwiz for next boot"
         sudo cp $REPO/files/piwiz.desktop /etc/xdg/autostart/
     fi
