@@ -72,10 +72,11 @@ function update () {
 }
 
 function digikam_fix () {
-    cat >> /home/pi/.bashrc << EOF
-export QT_QPA_PLATFORMTHEME=gtk3
-export QT_STYLE_OVERRIDE=gtk3
-EOF
+#    cat >> /home/pi/.bashrc << EOF
+#export QT_QPA_PLATFORMTHEME=gtk3
+#export QT_STYLE_OVERRIDE=gtk3
+#EOF
+    sed -i -e 's/^style=.*/style=gtk3/' /home/pi/.config/qt5ct/qt5ct.conf
 }
 
 function apt_install () {
