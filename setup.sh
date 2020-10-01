@@ -139,6 +139,9 @@ function wrap () {
     if ! grep -q 'init_resize.sh' /boot/cmdline.txt; then
       log "Reinstating init_resize.sh for next boot"
       sudo sed -i 's|$| init=/usr/lib/raspi-config/init_resize.sh|' /boot/cmdline.txt
+      sudo cp $REPO/files/resize2fs_once /etc/init.d/
+      sudo chmod +x /etc/init.d/resize2fs_once
+      sudo systemctl enable resize2fs_once
     fi
     log "Removing WiFi configuration"
     head -2 /etc/wpa_supplicant/wpa_supplicant.conf | sudo tee /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
@@ -158,7 +161,7 @@ function wrap () {
     sudo rm -rf /var/cache/apt/archives/
     log "Deleting pip cache"
     sudo rm -rf .cache
-    log "Deleting other misc items"
+    log "Deleting history and other misc items"
     sudo rm -f /home/pi/.bash_history /home/pi/.python_history /home/pi/.wget-hsts /home/pi/setup.log /home/pi/setup.sh 
     log "Astro Pi Installation complete! Run 'sudo reboot' to restart."
 }
