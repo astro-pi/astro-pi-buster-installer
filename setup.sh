@@ -79,11 +79,12 @@ EOF
 }
 
 function apt_install () {
-    log "Installing new apt packages..."
     if is_desktop; then
+    log "Installing new apt packages for Desktop version..."
         sudo apt-get install `cat $REPO/packages.txt $REPO/packages.desktop.txt` --no-install-recommends -y >> $logfile
         if ! grep -q digikam $REPO/packages.txt; then digikam_fix; fi
     else
+        log "Installing new apt packages for Lite version..."
         sudo apt-get install `cat $REPO/packages.txt` --no-install-recommends -y >> $logfile
     fi
 }
