@@ -153,17 +153,21 @@ function lite_vs_desktop () {
     fi
 }
 
+function set_resize () {
+    sudo sed -i 's|$| init=/usr/lib/raspi-config/init_resize.sh|' /boot/cmdline.txt
+    sudo cp $REPO/files/resize2fs_once /etc/init.d/
+    sudo chmod +x /etc/init.d/resize2fs_once
+    sudo systemctl enable resize2fs_once
+}
+
 function wrap () {
     if is_desktop; then
         log "Reinstating the piwiz for next boot"
         sudo cp $REPO/files/piwiz.desktop /etc/xdg/autostart/
     fi
     if ! grep -q 'init_resize.sh' /boot/cmdline.txt; then
-      log "Reinstating init_resize.sh for next boot"
-      sudo sed -i 's|$| init=/usr/lib/raspi-config/init_resize.sh|' /boot/cmdline.txt
-      sudo cp $REPO/files/resize2fs_once /etc/init.d/
-      sudo chmod +x /etc/init.d/resize2fs_once
-      sudo systemctl enable resize2fs_once
+      log "Preparing to resize filesystem on next boot"
+      set_resize
     fi
     log "Removing WiFi configuration"
     head -2 /etc/wpa_supplicant/wpa_supplicant.conf | sudo tee /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
