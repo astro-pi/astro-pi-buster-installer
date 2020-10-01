@@ -190,8 +190,7 @@ function wrap () {
     log "Deleting pip cache"
     sudo rm -rf .cache
     log "Deleting history and other misc items"
-    sudo rm -f /home/pi/.bash_history /home/pi/.python_history /home/pi/.wget-hsts /home/pi/setup.log /home/pi/setup.sh 
-    log "Astro Pi Installation complete! Run 'sudo reboot' to restart."
+    sudo rm -f /home/pi/.bash_history /home/pi/.python_history /home/pi/.wget-hsts /home/pi/setup.log
 }
 
 function setup () {
