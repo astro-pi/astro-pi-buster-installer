@@ -34,9 +34,7 @@ See [astro-pi.org](https://astro-pi.org/) and the
 Make sure you're connected to the internet, and type this in the terminal:
 
 ```bash
-export REPO="astro-pi-buster-installer"
-export BRANCH="2020"
-wget https://raw.githubusercontent.com/astro-pi/$REPO/$BRANCH/setup.sh
+wget https://raw.githubusercontent.com/astro-pi/astro-pi-buster-installer/2020/setup.sh
 source setup.sh
 ```
 
@@ -86,24 +84,32 @@ You can even monitor the log file "live", as it is generated, using
 ### Testing the Python environment
 
 The `tests` folder contains Python programs that import a range of installed modules
-and test their functionality. You can run each of them individually or type `test` to 
-run them all:
+and test their functionality. You can run each of them individually use the `test` function 
+to run them all:
+
+```bash
+test
+```
+
+Make sure you have _rebooted_ your system before you perform any of the tests.
 
 Also in the `tests` folder, you can find and test `astro-example.py`, which contains the code for 
-the ["Worked example" presented in the Mission Space Lab Phase 2 guide](https://projects.raspberrypi.org/en/projects/code-for-your-astro-pi-mission-space-lab-experiment/10).
+the ["Worked example" presented in the Mission Space Lab Phase 2 guide](https://projects.raspberrypi.org/en/projects/code-for-your-astro-pi-mission-space-lab-experiment/10). 
 
-Make sure you have rebooted your system before you perform any of the tests.
+### Creating OS images
 
-### Creating images
-
-When you are done setting up the environment, run `wrap` to do any necessary 
+When you are done setting up the environment, use the `wrap` function for
 cleaning up.
+
+```bash
+wrap
+```
 
 If you are using the installer to generate OS images, also run `set_resize` 
 as a last step before shrinking, so that the filesystem is resized on first boot. 
 
 ```bash
-wrap
+set_resize
 ```
 
 ## Options
