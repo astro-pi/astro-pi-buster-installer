@@ -106,7 +106,7 @@ function pip_install() {
     done
 
     # duplicate armv6 wheels to pass for armv7
-    for file in `ls $REPO/wheels/*armv6l.whl`; do cp $file `echo $file | sed 's/armv6l/armv7l/'` ; done
+    for file in $REPO/wheels/*armv6l.whl; do cp $file `echo $file | sed 's/armv6l/armv7l/'` ; done
 
     # Install Python packages from PyPI/piwheels - versions specified in requirements.txt
     log "Installing Python packages..."
@@ -210,5 +210,5 @@ function install () {
 }
 
 function test() {
-    for test in `ls $REPO/tests/test-*.py`; do python3 $test; done
+    for test in $REPO/tests/test-*.py; do python3 $test; done
 }
