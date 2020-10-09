@@ -1,3 +1,6 @@
-python3-sense-emu sense-emu-tools
+python3-sense-emu
+sense-emu-tools
 digikam
-
+libreoffice
+realvnc-vnc-server
+realvnc-vnc-viewer

@@ -72,16 +72,12 @@ function update () {
 }
 
 function digikam_fix () {
-#    cat >> /home/pi/.bashrc << EOF
-#export QT_QPA_PLATFORMTHEME=gtk3
-#export QT_STYLE_OVERRIDE=gtk3
-#EOF
     sed -i -e 's/^style=.*/style=gtk3/' /home/pi/.config/qt5ct/qt5ct.conf
 }
 
 function apt_install () {
     if is_desktop; then
-    log "Installing new apt packages for Desktop version..."
+        log "Installing new apt packages for Desktop version..."
         sudo apt-get install `cat $REPO/packages.txt $REPO/packages.desktop.txt` --no-install-recommends -y >> $logfile
         if ! grep -q digikam $REPO/packages.txt; then digikam_fix; fi
     else
@@ -114,9 +110,13 @@ function pip_install() {
 }
 
 function enable_camera () {
-    # Enable the camera
     log "Enabling the camera interface"
     sudo raspi-config nonint do_camera 0
+}
+
+function enable_vnc () {
+    log "Enabling VNC"
+    sudo raspi-config nonint do_vnc 0
 }
 
 function lite_vs_desktop () {
@@ -139,6 +139,8 @@ function lite_vs_desktop () {
             cp -r $global_config_dir $local_config_dir
         fi
         sed -i -e 's|wallpaper=.*|wallpaper=/usr/share/rpd-wallpaper/mission_space_lab.sunglint.png|g' $local_config
+
+        enable_vnc
 
         log "Installing Mu editor..."
         sudo apt-get install mu-editor -y >> $logfile
